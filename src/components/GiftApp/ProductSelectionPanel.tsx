@@ -5,6 +5,7 @@ import { fetchAllProducts } from '@/services/productsApi';
 import { Input } from "@/components/ui/input";
 import { Product } from '@/types/product';
 import { Search, GripVertical } from 'lucide-react';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ProductSelectionPanelProps {
   onItemDrop: (item: Product) => void;
@@ -20,7 +21,6 @@ const ProductSelectionPanel = ({ onItemDrop }: ProductSelectionPanelProps) => {
     queryFn: fetchAllProducts
   });
 
-  // Get unique itemgroup_product values and format them
   const categories = ['tous', ...new Set(products.map(p => p.itemgroup_product))].map(category => ({
     value: category,
     label: category === 'tous' ? 'Tous' : 
@@ -74,34 +74,36 @@ const ProductSelectionPanel = ({ onItemDrop }: ProductSelectionPanelProps) => {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 gap-4 overflow-y-auto flex-1 min-h-0">
-          {filteredProducts.map((product) => (
-            <motion.div
-              key={product.id}
-              draggable
-              onDragStart={(e) => handleDragStart(e, product)}
-              onDragEnd={handleDragEnd}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`bg-white rounded-lg shadow-sm p-4 cursor-grab active:cursor-grabbing border border-gray-100/50 hover:shadow-md transition-all ${
-                draggedItem?.id === product.id ? 'opacity-50' : ''
-              }`}
-            >
-              <div className="relative">
-                <GripVertical className="absolute top-0 right-0 text-gray-400" size={16} />
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-24 object-contain mb-2"
-                />
-                <h3 className="text-sm font-medium text-gray-900 truncate">
-                  {product.name}
-                </h3>
-                <p className="text-sm text-[#700100] font-medium mt-1">{product.price} TND</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        <ScrollArea className="flex-1 h-[400px] pr-4">
+          <div className="grid grid-cols-2 gap-4">
+            {filteredProducts.map((product) => (
+              <motion.div
+                key={product.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, product)}
+                onDragEnd={handleDragEnd}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`bg-white rounded-lg shadow-sm p-4 cursor-grab active:cursor-grabbing border border-gray-100/50 hover:shadow-md transition-all ${
+                  draggedItem?.id === product.id ? 'opacity-50' : ''
+                }`}
+              >
+                <div className="relative">
+                  <GripVertical className="absolute top-0 right-0 text-gray-400" size={16} />
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-24 object-contain mb-2"
+                  />
+                  <h3 className="text-sm font-medium text-gray-900 truncate">
+                    {product.name}
+                  </h3>
+                  <p className="text-sm text-[#700100] font-medium mt-1">{product.price} TND</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </ScrollArea>
       </div>
     </div>
   );
