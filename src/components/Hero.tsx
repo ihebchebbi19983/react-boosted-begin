@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const Hero = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
 
   const banners = [
     {
@@ -19,7 +20,33 @@ const Hero = () => {
     }
   ];
 
+  // Preload images
   useEffect(() => {
+    const loadImages = async () => {
+      try {
+        const imagePromises = banners.map(banner => {
+          return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = banner.image;
+            img.onload = resolve;
+            img.onerror = reject;
+          });
+        });
+
+        await Promise.all(imagePromises);
+        setImagesLoaded(true);
+      } catch (error) {
+        console.error('Error preloading images:', error);
+        setImagesLoaded(true); // Still set to true to not block rendering
+      }
+    };
+
+    loadImages();
+  }, []);
+
+  useEffect(() => {
+    if (!imagesLoaded) return;
+
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) =>
         prevIndex === banners.length - 1 ? 0 : prevIndex + 1
@@ -27,10 +54,14 @@ const Hero = () => {
     }, 8000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [imagesLoaded]);
+
+  if (!imagesLoaded) {
+    return <div className="h-[95vh] bg-gray-100 animate-pulse" />;
+  }
 
   return (
-    <section className="relative h-[95vh] overflow-hidden"> {/* Changed from h-screen to h-[90vh] */}
+    <section className="relative h-[95vh] overflow-hidden">
       <AnimatePresence mode='wait'>
         <motion.div
           key={currentIndex}
